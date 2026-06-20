@@ -1,6 +1,6 @@
 # 🏋️‍♀️ RepForge: Computer Vision Meets Live LLM Voice Coaching, Rep by Rep
 
-A computer-vision fitness coach that watches you train through your webcam, scores your form rep-by-rep, detects fatigue before you do, and speaks live corrections powered by an LLM — all running in a Streamlit app.
+A computer-vision fitness coach that watches you train through your webcam, scores your form rep-by-rep, detects fatigue before you do, and speaks live corrections powered by an LLM, all running in a Streamlit app.
 
 Built from scratch to deliver real-time exercise tracking, biomechanical form analysis, fatigue detection, session-aware AI coaching, and persistent workout analytics, going beyond a typical rep-counter application.
 
@@ -8,15 +8,15 @@ Built from scratch to deliver real-time exercise tracking, biomechanical form an
 
 ## ✨ Features
 
-- **Real-time pose tracking** — MediaPipe `PoseLandmarker` processes the webcam feed frame-by-frame via `streamlit-webrtc`.
-- **7 exercises supported** — Squats, Push-ups, Bicep Curls (Dumbbell), Shoulder Press, Lunges, Deadlifts, and Planks, each with a dedicated detector class.
-- **Joint-angle form scoring** — every exercise calculates a live 0–100 form score from joint angles (e.g. knee angle, torso lean, elbow drift, back arch) using a penalty-based scoring model.
-- **Fatigue detection** — compares the duration of recent reps against early reps in the set; if pace drops significantly, a fatigue flag is raised and logged.
-- **Posture safety monitoring** — derives a basic injury-risk level (Low / Medium / High) from spinal angle in real time.
-- **AI voice coaching** — a Groq-hosted LLM (`llama-3.3-70b-versatile`) generates short, motivating spoken feedback for key events (workout start, set complete, form issues, workout complete), converted to audio and played back automatically.
-- **Session-aware coaching** — the coach is given a summary of the user's recent sessions (reps, form score) so feedback can reference real progress, not just the current set.
-- **Persistent workout history** — every user, session, set, and fatigue event is stored in SQLite, with an aggregated history table shown in the app.
-- **Custom UI** — a midnight blue / glass-card themed interface with a custom font and live skeleton overlay drawn directly on the video feed.
+- **Real-time pose tracking**: MediaPipe `PoseLandmarker` processes the webcam feed frame-by-frame via `streamlit-webrtc`.
+- **7 exercises supported**: Squats, Push-ups, Bicep Curls (Dumbbell), Shoulder Press, Lunges, Deadlifts, and Planks, each with a dedicated detector class.
+- **Joint-angle form scoring**: every exercise calculates a live 0–100 form score from joint angles (e.g. knee angle, torso lean, elbow drift, back arch) using a penalty-based scoring model.
+- **Fatigue detection**: compares the duration of recent reps against early reps in the set; if pace drops significantly, a fatigue flag is raised and logged.
+- **Posture safety monitoring**: derives a basic injury-risk level (Low / Medium / High) from spinal angle in real time.
+- **AI voice coaching**: a Groq-hosted LLM (`llama-3.3-70b-versatile`) generates short, motivating spoken feedback for key events (workout start, set complete, form issues, workout complete), converted to audio and played back automatically.
+- **Session-aware coaching**: the coach is given a summary of the user's recent sessions (reps, form score) so feedback can reference real progress, not just the current set.
+- **Persistent workout history**: every user, session, set, and fatigue event is stored in SQLite, with an aggregated history table shown in the app.
+- **Custom UI**: a midnight blue / glass-card themed interface with a custom font and live skeleton overlay drawn directly on the video feed.
 
 ---
 
@@ -124,7 +124,7 @@ gym-ai-coach/
 | Deadlifts | Hip angle, torso angle | Spinal/back arch |
 | Planks | Body line, hip deviation | Body alignment, hip sag (+ live hold timer) |
 
-Every detector also feeds into a shared fatigue check: once at least 4 reps are completed, the average duration of the last 3 reps is compared against the first 3 — a sustained ≥40% slowdown flags fatigue.
+Every detector also feeds into a shared fatigue check: once at least 4 reps are completed, the average duration of the last 3 reps is compared against the first 3, a sustained ≥40% slowdown flags fatigue.
 
 ---
 
@@ -132,7 +132,7 @@ Every detector also feeds into a shared fatigue check: once at least 4 reps are 
 
 ### Prerequisites
 
-- **Python 3.12** — MediaPipe's `PoseLandmarker` Tasks API is not yet compatible with Python 3.14, so 3.12 is required.
+- **Python 3.12**: MediaPipe's `PoseLandmarker` Tasks API is not yet compatible with Python 3.14, so 3.12 is required.
 - A webcam
 - A free [Groq API key](https://console.groq.com/) for the AI coaching feature
 
@@ -186,19 +186,18 @@ Open the local URL Streamlit prints in your terminal, enter a username, set up y
 
 SQLite (`data.db`) is created automatically on first launch with three tables:
 
-- **`users`** — `id`, `username`, `created_at`
-- **`exercises`** — `id`, `user_id`, `exercise_name`, `reps`, `sets`, `time`, `form_score`, `created_at`
-- **`fatigue_events`** — `id`, `user_id`, `exercise_name`, `created_at`
+- **`users`**: `id`, `username`, `created_at`
+- **`exercises`**: `id`, `user_id`, `exercise_name`, `reps`, `sets`, `time`, `form_score`, `created_at`
+- **`fatigue_events`**: `id`, `user_id`, `exercise_name`, `created_at`
 
 This powers the workout history table on the dashboard and the session context fed to the LLM coach.
 
 ---
 
-## 🗺️ Roadmap
+## 🚀 Future Enhancements
 
-- [ ] Add multilingual voice coaching support
-- [ ] Expand safety monitoring (`unsafe_posture_detected` / `risk_level`) with exercise-specific thresholds
-- [ ] Deploy application to Streamlit Cloud
-- [ ] Build and deploy a project landing page on Netlify
-- [ ] Per-exercise progress charts using stored session history
-- [ ] Multi-person / multi-angle camera support
+- [ ] Adaptive fatigue-aware coaching that dynamically adjusts workout intensity and rest periods
+- [ ] Exercise auto-detection to eliminate manual exercise selection
+- [ ] Personalized form-improvement plans generated from historical posture and form data
+- [ ] Exercise-specific injury-risk prediction using biomechanical movement patterns
+- [ ] Long-term performance trend analysis to identify strength, endurance, and consistency improvements
