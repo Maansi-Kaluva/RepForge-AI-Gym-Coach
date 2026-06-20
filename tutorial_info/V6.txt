@@ -1,0 +1,3 @@
+SQLite Setup (exercise repository, schema init and CRUD)
+create user on login_wall
+DB initialization in main fcn

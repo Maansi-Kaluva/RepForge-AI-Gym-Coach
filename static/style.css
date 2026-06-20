@@ -1,0 +1,231 @@
+.stApp {
+  background:
+    radial-gradient(circle at top left, rgba(148,163,184,0.08), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(30,58,138,0.12), transparent 20%),
+    #060912;
+  color: #F8FAFC;
+}
+
+/* SIDEBAR */
+
+[data-testid="stSidebar"] {
+  background: rgba(8,12,28,0.97);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+/* TYPOGRAPHY */
+
+.block-container,
+.block-container * {
+  font-family: 'AdobeClean', sans-serif !important;
+}
+
+h1, h2, h3 {
+  letter-spacing: -0.03em;
+  font-weight: 650 !important;
+  color: #FCFCFD;
+}
+
+p, label, li {
+  color: rgba(248,250,252,0.82) !important;
+}
+
+/* LAYOUT */
+
+.block-container {
+  padding: 55px 3rem !important;
+  max-width: 760px !important;
+}
+
+/* GLASS CARDS */
+
+.stForm,
+[data-testid="stMetric"],
+.stAlert,
+.stExpander,
+div[data-testid="stVerticalBlock"] > div:has(.element-container) {
+  background: rgba(255,255,255,0.025) !important;
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(148,163,184,0.10);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.02),
+    0 12px 40px rgba(0,0,0,0.45);
+  border-radius: 22px !important;
+}
+
+/* BUTTONS */
+
+button,
+.stButton button {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(148,163,184,0.95),
+      rgba(30,58,138,0.95)
+    ) !important;
+
+  color: white !important;
+  border: none !important;
+  border-radius: 14px !important;
+  font-weight: 600 !important;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.22s ease;
+}
+
+button:hover,
+.stButton button:hover {
+  transform: translateY(-2px) scale(1.01);
+
+  box-shadow:
+    0 10px 28px rgba(148,163,184,0.20),
+    0 0 20px rgba(30,58,138,0.25);
+}
+
+.stButton button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: rgba(255,255,255,0.10);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+
+.stButton button:hover::after {
+  left: 120%;
+}
+
+/* INPUTS */
+
+input,
+textarea,
+[data-baseweb="select"] > div,
+[data-testid="stTextInput"] > div > div,
+[data-testid="stNumberInput"] > div > div {
+  background: rgba(255,255,255,0.04) !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(148,163,184,0.12) !important;
+  border-radius: 14px !important;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus {
+  border: 1px solid rgba(148,163,184,0.50) !important;
+  box-shadow: 0 0 0 4px rgba(148,163,184,0.08);
+}
+
+/* METRICS */
+
+[data-testid="stMetric"] {
+  padding: 1.2rem 1.3rem !important;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-testid="stMetric"]::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, #94A3B8, #1E3A8A);
+  border-radius: 2px;
+}
+
+[data-testid="stMetricLabel"] {
+  opacity: 0.62;
+  font-size: 14px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+[data-testid="stMetricValue"] {
+  font-size: 1.65rem !important;
+  font-weight: 650 !important;
+}
+
+/* GLOWING HEADER */
+
+h1 {
+  background: linear-gradient(135deg, #F8FAFC, #94A3B8, #CBD5E1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* SIDEBAR ACCENT LINE */
+
+[data-testid="stSidebar"]::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, #94A3B8, transparent);
+}
+
+/* SUBTLE GRID BACKGROUND */
+
+.stApp::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image:
+    linear-gradient(rgba(148,163,184,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* DIVIDERS */
+
+hr {
+  border-color: rgba(255,255,255,0.05) !important;
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148,163,184,0.15);
+  border-radius: 20px;
+}
+
+/* SELECTBOX */
+
+[data-baseweb="select"] {
+  border-radius: 14px !important;
+}
+
+/* TABS */
+
+.stTabs [data-baseweb="tab"] {
+  border-radius: 12px !important;
+}
+
+/* CARD GLOW ON HOVER */
+
+[data-testid="stMetric"]:hover {
+  border-color: rgba(148,163,184,0.20);
+  box-shadow:
+    0 0 20px rgba(148,163,184,0.08),
+    0 12px 40px rgba(0,0,0,0.5) !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.stForm:hover {
+  border-color: rgba(148,163,184,0.15);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
