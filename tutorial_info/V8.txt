@@ -1,4 +1,0 @@
-MediPipe Concepts(landmarks, confidence scores, tracking model etc) - go to MediPipe guide by google ai edge
-
-Implement Base-exercise class
-Implement - squats detector class
