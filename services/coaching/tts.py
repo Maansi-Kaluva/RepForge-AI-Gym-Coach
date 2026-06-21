@@ -11,11 +11,14 @@ class TextToSpeech:
         try:
             buffer = BytesIO()
 
-            gTTS(
+            tts = gTTS(
                 text=cleaned_text,
                 lang=lang,
-                slow=False
-            ).write_to_fp(buffer)
+                slow=False,
+                tld = "co.in"
+            )
+
+            tts.write_to_fp(buffer)
 
             buffer.seek(0)
             return buffer.read()

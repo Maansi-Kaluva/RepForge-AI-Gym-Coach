@@ -78,7 +78,7 @@ class DeadliftDetector(BaseExercise):
         else:
             back_arch_status = "EXCESSIVE ARCH"
 
-        hip_status = "HINGING" if self.stage == "down" else "STANDING"
+        hip_status = "HINGING" if hip_angle < self.UP_THRESHOLD else "STANDING"
 
         return {
             "reps": self.reps,

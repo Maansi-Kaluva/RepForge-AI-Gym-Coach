@@ -85,20 +85,18 @@ def main():      # main function of the app
                 st.session_state.last_notified_workout_completed = False
                 st.session_state.fatigue_logged = False
                 st.session_state.fatigue_detected = False
+                st.session_state.workout_announced = False  # coach greets once it actually sees you
 
                 if voice_pipeline:
                     recent_sessions = get_recent_sessions(st.session_state.user_id, limit = 5)
                     voice_pipeline.llm.set_session_context(recent_sessions)
-
-                    result = voice_pipeline.process_event("workout_started", plan_exercise, {})
-                    if result:
-                        st.session_state.last_audio, st.session_state.last_feedback = result
+                    # "workout_started" line now fires from sync_metrics_update() on first detected pose
 
                 st.rerun()
         else: 
             exercise = st.session_state.get("exercise_type")
-            sets = st.session_state.get("plan_sets")
-            reps = st.session_state.get("plan_reps")
+            sets = st.session_state.get("target_sets")
+            reps = st.session_state.get("reps_per_set")
             
             st.info(f"**{exercise}** : {sets} Sets / {reps} Reps")
 
@@ -109,6 +107,13 @@ def main():      # main function of the app
                 st.session_state["reps"] = 0
                 st.session_state["sets_completed"] = 0
                 st.session_state["current_set_reps"] = 0
+
+                st.session_state["last_feedback"] = ""
+                st.session_state["last_audio"] = None
+
+                st.session_state["workout_announced"] = False
+                st.session_state["last_notified_sets_completed"] = 0
+                st.session_state["last_notified_workout_completed"] = False
                 st.rerun()
         
         if workout_started:
@@ -117,9 +122,9 @@ def main():      # main function of the app
             exercise = st.session_state.get("exercise_type")
             total_reps = st.session_state.get("reps")
             current_set_reps = st.session_state.get("current_set_reps")
-            reps_per_set = st.session_state.get("plan_reps")
+            reps_per_set = st.session_state.get("reps_per_set")
             sets_completed = st.session_state.get("sets_completed")
-            target_sets = st.session_state.get("plan_sets")
+            target_sets = st.session_state.get("target_sets")
 
             st.subheader("Progress")
 
@@ -232,53 +237,57 @@ def main():      # main function of the app
         )
 
         sync_metrics_update(context, voice_pipeline)
-        inject_webrtc_styles()
+
+        if not st.session_state.get("_webrtc_styles_injected", False):
+            inject_webrtc_styles()
+            st.session_state["_webrtc_styles_injected"] = True
 
         if st.session_state.get("last_audio"):
             st.audio(st.session_state.last_audio, format="audio/mp3", autoplay=True)
             st.session_state.last_audio = None
 
-        if st.session_state.get("last_feedback"):
+        if workout_started and st.session_state.get("last_feedback"):
             st.caption(f"🗣️ {st.session_state.last_feedback}")
 
         if context.state.playing:
-            time.sleep(0.25)
+            time.sleep(0.4)
             st.rerun()
 
-    st.divider()
-    st.markdown("#### Workout History")
+    if not workout_started:
+        st.divider()
+        st.markdown("#### Workout History")
 
-    user_id = st.session_state.get("user_id", 0)
+        user_id = st.session_state.get("user_id", 0)
 
-    if isinstance(user_id, int):     # checks whether user_id is an integer (int) datatype before running the code inside the if block.
-        history_keys = get_users_exercises(user_id)
+        if isinstance(user_id, int):     # checks whether user_id is an integer (int) datatype before running the code inside the if block.
+            history_keys = get_users_exercises(user_id)
 
-        history_keys_arr = [
-            {
-                "Id": key["id"],
-                "Exercise": key["exercise_name"],
-                "Reps": key["reps"],
-                "Sets": key["sets"],
-                "Time(sec)": key["time"],
-                "Date": key["created_at"]
-            }
-            for key in history_keys
-        ]
+            history_keys_arr = [
+                {
+                    "Id": key["id"],
+                    "Exercise": key["exercise_name"],
+                    "Reps": key["reps"],
+                    "Sets": key["sets"],
+                    "Time(sec)": key["time"],
+                    "Date": key["created_at"]
+                }
+                for key in history_keys
+            ]
 
-        # converting the above array into a dataframe
-        workout_history_df = pd.DataFrame(history_keys_arr)
+            # converting the above array into a dataframe
+            workout_history_df = pd.DataFrame(history_keys_arr)
 
-        if not workout_history_df.empty:
-            workout_history_df["Date"] = pd.to_datetime(workout_history_df["Date"]).dt.date
-            agg_df = workout_history_df.groupby(["Exercise", "Date"]).agg({
-                "Reps": "sum",
-                "Sets": "sum",
-                "Time(sec)": "sum"
-            }).reset_index()
-            agg_df.index += 1
-            st.table(agg_df, border = "horizontal")
-        else:
-            st.info("No workout history found.")
+            if not workout_history_df.empty:
+                workout_history_df["Date"] = pd.to_datetime(workout_history_df["Date"]).dt.date
+                agg_df = workout_history_df.groupby(["Exercise", "Date"]).agg({
+                    "Reps": "sum",
+                    "Sets": "sum",
+                    "Time(sec)": "sum"
+                }).reset_index()
+                agg_df.index += 1
+                st.table(agg_df, border = "horizontal")
+            else:
+                st.info("No workout history found.")
 
 if  __name__ == "__main__":    # Start the app from here only when this file is the main file being run. This makes sure the main code runs only when this file is executed directly.
     main()  # starts the app by calling main function

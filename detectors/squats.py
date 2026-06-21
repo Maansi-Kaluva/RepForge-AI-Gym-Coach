@@ -71,18 +71,22 @@ class SquatDetector(BaseExercise):
                 self.stage = "up"
                 self._record_rep()
 
-        if self.stage == "down":
-            depth_status = "GOOD DEPTH" if knee_angle <= self.DOWN_THRESHOLD else "TOO HIGH"
-        elif self.stage == "up":
+        if knee_angle <= self.DOWN_THRESHOLD:
+            depth_status = "GOOD DEPTH"
+        elif knee_angle >= self.UP_THRESHOLD:
             depth_status = "STANDING"
         else:
-            depth_status = "N/A"
+            depth_status = "TOO HIGH"
 
         return {
             "reps": self.reps,
             "knee_angle": int(knee_angle),
             "back_angle": int(back_angle),
             "depth_status": depth_status,
-            "form_score": self._calculate_form_score(depth_status, back_angle),
+            "form_score": (
+                0
+                if self.reps == 0
+                else self._calculate_form_score(depth_status, back_angle)
+            ),
             "fatigue_detected": self.fatigue_detected,
             }

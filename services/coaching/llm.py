@@ -21,7 +21,6 @@ class LLMCoach:
 
     def give_feedback(self, event, issue):
         prompt = f"Event: {event}"
-
         if issue:
             prompt += f". Form Issue: {issue}"
 
@@ -29,21 +28,22 @@ class LLMCoach:
         if self.session_context:
             system_content += "\n\n" + self.session_context
 
-        messages = [                    # Creates the full conversation list sent to the LLM.
+        messages = [
             {"role": "system", "content": system_content},
             *self.feedback_history[-10:],
             {"role": "user", "content": prompt}
         ]
 
-        # pass the messages list to the client to get the response
-        response = self.client.chat.completions.create(
-            model = "llama-3.3-70b-versatile",
-            messages = messages,
-            temperature = 0.4
-        )
-        
-        # Extracting AI Response
-        text_feedback = response.choices[0].message.content.strip()
-        self.feedback_history.append({"role": "assistant", "content": text_feedback})
+        try:
+            response = self.client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=messages,
+                temperature=0.4
+            )
+            text_feedback = response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"LLM Error: {e}")
+            text_feedback = "Keep pushing, you've got this!"
 
+        self.feedback_history.append({"role": "assistant", "content": text_feedback})
         return text_feedback

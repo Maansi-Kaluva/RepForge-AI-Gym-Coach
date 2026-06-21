@@ -63,6 +63,9 @@ def sync_metrics_update(context, voice_pipeline=None):
     if reps_per_set > 0 and target_sets > 0:
         sets_completed = reps // reps_per_set 
         current_set_reps = reps % reps_per_set
+        if current_set_reps == 0 and reps > 0:
+            current_set_reps = reps_per_set
+            
         workout_completed = sets_completed >= target_sets
     else:
         sets_completed = 0
@@ -100,17 +103,33 @@ def sync_metrics_update(context, voice_pipeline=None):
 
     # voice coaching: decide which event (if any) should be spoken for this frame
     if voice_pipeline:
-        if not latest_metrics.get("pose_detected", True):
+        if not st.session_state.get("workout_announced", False) and latest_metrics.get("pose_detected", True):
+            event = "workout_started"
+            st.session_state.workout_announced = True
+
+        elif not latest_metrics.get("pose_detected", True):
             event = "no_pose_detected"
+
         elif workout_completed and not st.session_state.get("last_notified_workout_completed", False):
             event = "workout_completed"
             st.session_state.last_notified_workout_completed = True
+
         elif sets_completed > st.session_state.get("last_notified_sets_completed", 0):
             event = "set_completed"
             st.session_state.last_notified_sets_completed = sets_completed
-        else:
+
+        elif reps > 1:
             event = "form_feedback"
 
-        result = voice_pipeline.process_event(event, exercise, latest_metrics)
-        if result:
-            st.session_state.last_audio, st.session_state.last_feedback = result
+        else:
+            event = None
+
+        if event:
+            result = voice_pipeline.process_event(
+                event,
+                exercise,
+                latest_metrics
+            )
+
+            if result:
+                st.session_state.last_audio, st.session_state.last_feedback = result

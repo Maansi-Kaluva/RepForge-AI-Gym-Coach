@@ -1,4 +1,4 @@
-# This file is the main voice feedback controller of your gym AI project. It decides:
+# This file is the main voice feedback controller of your gym AI project. It decides
 # Should feedback be spoken now? What issue should be told? Generate voice and return it.
 
 import time
@@ -77,22 +77,44 @@ class VoicePipeline:
         issue = self._find_form_issue(exercise, metrics)
         now = time.time()
 
-        is_major_event = event in ["workout_started", "set_completed", "workout_completed", "no_pose_detected"]
+        # only these fire instantly — they're already debounced upstream by session_state flags
+        is_instant_event = event in ["workout_started", "set_completed", "workout_completed"]
 
-        # major events
-        if is_major_event:
+        if is_instant_event:
             text = self.llm.give_feedback(event, issue)
             voice = self.tts.speak(text)
             self.last_spoken_at = now
             return voice, text
 
-        if not issue:
+        # no_pose_detected and ongoing form feedback share the same cooldown
+        should_speak = event == "no_pose_detected" or issue is not None
+        if not should_speak:
             return None
 
         if now - self.last_spoken_at < 5:
             return None
 
-        text = self.llm.give_feedback(event, issue)
+        if event == "form_feedback":
+            feedback_map = {
+                "The user's squat is not deep enough — knees are not bending sufficiently.": "Go a little deeper into the squat.",
+                "The user is leaning too far forward during the squat.": "Keep your chest up and your back straighter.",
+                "The user's body is not straight during the push-up.": "Keep your body in a straight line.",
+                "The user's hips are sagging down during the push-up.": "Engage your core and lift your hips slightly.",
+                "The user's hips are too high — lower them to form a straight line.": "Lower your hips and maintain a straight body line.",
+                "The user is swinging their torso during the curl — keep the body still.": "Avoid swinging. Let your arms do the work.",
+                "The user's elbow is drifting away from their side during the curl.": "Keep your elbows tucked close to your body.",
+                "The user is arching their lower back excessively during the press.": "Brace your core and avoid excessive back arch.",
+                "Slight back arch detected — encourage the user to brace their core.": "Keep your core tight throughout the movement.",
+                "The user is losing balance during the lunge — feet should be hip-width apart.": "Widen your stance slightly for better balance.",
+                "The user's back is rounding during the deadlift — keep the spine neutral.": "Keep your spine neutral and chest lifted.",
+                "The user's plank form has broken down — body is not in a straight line.": "Maintain a straight line from shoulders to ankles.",
+                "The user's hips are sagging in the plank — engage the core.": "Engage your core and lift your hips slightly."
+            }
+
+            text = feedback_map.get(issue, issue)
+        else:
+            text = self.llm.give_feedback(event, issue)
+
         voice = self.tts.speak(text)
         self.last_spoken_at = now
         return voice, text

@@ -83,18 +83,21 @@ class VideoProcessor(VideoProcessorBase):
                     int(p1.y*h)), 
                     (int(p2.x*w), int(p2.y*h)), 
                     (255, 220, 0), 
-                    8
+                    4
                 )
 
-        for lm in landmarks:
+        for idx, lm in enumerate(landmarks):
+            if idx <= 10:
+                continue
+
             if lm.visibility > 0.7:
                 cv2.circle(
-                    img, 
-                    (int(lm.x*w), int(lm.y*h)), 
-                    8, 
-                    (0, 200, 255), 
+                    img,
+                    (int(lm.x*w), int(lm.y*h)),
+                    6,
+                    (0, 200, 255),
                     -1
-                ) 
+                )
     
     def _draw_no_pose_warnings(self, img):
             cv2.putText(
@@ -113,7 +116,7 @@ class VideoProcessor(VideoProcessorBase):
         bar_width = int((form_score / 100) * (w - 40))
 
         # background bar
-        cv2.rectangle(img, (20, 10), (w - 20, 30), (50, 50, 50), -1)
+        cv2.rectangle(img, (20, 10), (w - 20, 25), (50, 50, 50), -1)
 
         # colored fill based on score
         if form_score >= 80:
@@ -123,15 +126,15 @@ class VideoProcessor(VideoProcessorBase):
         else:
             color = (0, 0, 255)      # red
 
-        cv2.rectangle(img, (20, 10), (20 + bar_width, 30), color, -1)
+        cv2.rectangle(img, (20, 10), (20 + bar_width, 25), color, -1)
         cv2.putText(
             img,
             f"FORM: {form_score}%",
-            (w - 130, 28),
+            (w - 120, 22),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.6,
-            (255,255,255),
-            2,
+            0.45,
+            (0,0,0),
+            1,
             cv2.LINE_AA
         )
 
@@ -266,7 +269,26 @@ class VideoProcessor(VideoProcessorBase):
 
             nose = landmarks[0]
 
-            if nose.x < 0.15 or nose.x > 0.85:
+            if (
+                landmarks[23].visibility < 0.5 or
+                landmarks[24].visibility < 0.5 or
+                landmarks[25].visibility < 0.5 or
+                landmarks[26].visibility < 0.5 or
+                landmarks[27].visibility < 0.5 or
+                landmarks[28].visibility < 0.5
+            ):
+                cv2.putText(
+                    image,
+                    "STEP BACK - FULL BODY NOT VISIBLE",
+                    (30, 100),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 100, 255),
+                    2,
+                    cv2.LINE_AA
+                )
+
+            elif nose.visibility > 0.7 and (nose.x < 0.10 or nose.x > 0.90):
                 cv2.putText(
                     image,
                     "PLEASE FACE THE CAMERA",
@@ -290,7 +312,7 @@ class VideoProcessor(VideoProcessorBase):
                 # rep counter on screen
                 cv2.putText(
                     image, f"REPS: {metrics.get('reps', 0)}",
-                    (20, 40), 
+                    (20, 65), 
                     cv2.FONT_HERSHEY_SIMPLEX, 
                     0.9,
                     (255, 220, 0), 
@@ -326,4 +348,3 @@ class VideoProcessor(VideoProcessorBase):
                     self._latest_metrics = {"pose_detected": False}
 
         return av.VideoFrame.from_ndarray(image, format="bgr24")
-    
