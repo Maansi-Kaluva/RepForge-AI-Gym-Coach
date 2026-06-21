@@ -13,7 +13,7 @@ Built from scratch to deliver real-time exercise tracking, biomechanical form an
 - **Joint-angle form scoring**: every exercise calculates a live 0–100 form score from joint angles (e.g. knee angle, torso lean, elbow drift, back arch) using a penalty-based scoring model.
 - **Fatigue detection**: compares the duration of recent reps against early reps in the set; if pace drops significantly, a fatigue flag is raised and logged.
 - **Posture safety monitoring**: derives a basic injury-risk level (Low / Medium / High) from spinal angle in real time.
-- **AI voice coaching**: a Groq-hosted LLM (`llama-3.3-70b-versatile`) generates short, motivating spoken feedback for key events (workout start, set complete, form issues, workout complete), converted to audio and played back automatically.
+- **AI voice coaching**: a Groq-hosted LLM (`llama-3.3-70b-versatile`) generates short, motivating spoken feedback for key events (workout start, set complete, form issues, workout complete), converted to audio via Groq's Orpheus TTS model (with automatic gTTS fallback for resilience) and played back automatically.
 - **Session-aware coaching**: the coach is given a summary of the user's recent sessions (reps, form score) so feedback can reference real progress, not just the current set.
 - **Persistent workout history**: every user, session, set, and fatigue event is stored in SQLite, with an aggregated history table shown in the app.
 - **Custom UI**: a midnight blue / glass-card themed interface with a custom font and live skeleton overlay drawn directly on the video feed.
@@ -190,7 +190,8 @@ Each detector returns a metrics dictionary (reps, joint angles, status labels, `
 
                      ┌─────────────────────────┐
                      │ Text To Speech          │
-                     │ gTTS Engine             │
+                     │ Groq Orpheus TTS        │
+                     │ (gTTS fallback)         │
                      └─────────────┬───────────┘
                                    │
                                    ▼
@@ -211,7 +212,7 @@ Each detector returns a metrics dictionary (reps, joint angles, status labels, `
 | Pose estimation | [MediaPipe Tasks Vision](https://ai.google.dev/edge/mediapipe) (`PoseLandmarker`) |
 | Image processing | OpenCV (headless) |
 | LLM coaching | [Groq](https://groq.com/) (`llama-3.3-70b-versatile`) |
-| Text-to-speech | gTTS |
+| Text-to-speech | [Groq Orpheus](https://console.groq.com/docs/text-to-speech/orpheus) (gTTS fallback) |
 | Persistence | SQLite |
 | Data display | pandas |
 
@@ -249,7 +250,7 @@ gym-ai-coach/
 │   │   └── metrics.py               # Bridges VideoProcessor output → session_state + DB + voice pipeline
 │   └── coaching/
 │       ├── llm.py                   # LLMCoach — builds prompts, calls Groq, tracks feedback history
-│       ├── tts.py                   # gTTS wrapper
+│       ├── tts.py                   # Groq Orpheus TTS wrapper, gTTS fallback on failure
 │       └── voice_pipeline.py        # Decides what/when to speak based on exercise events
 ├── static/
 │   ├── style.css                    # App theme (glass cards, midnight blue palette)
