@@ -28,7 +28,7 @@ def get_voice_pipeline():
         except Exception:
             api_key = None
     client = Groq(api_key = api_key)
-    return VoicePipeline(LLMCoach(client), TextToSpeech())
+    return VoicePipeline(LLMCoach(client), TextToSpeech(client))
 
 
 def main():      # main function of the app
@@ -243,7 +243,7 @@ def main():      # main function of the app
             st.session_state["_webrtc_styles_injected"] = True
 
         if st.session_state.get("last_audio"):
-            st.audio(st.session_state.last_audio, format="audio/mp3", autoplay=True)
+            st.audio(st.session_state.last_audio, format="audio/wav", autoplay=True)
             st.session_state.last_audio = None
 
         if workout_started and st.session_state.get("last_feedback"):

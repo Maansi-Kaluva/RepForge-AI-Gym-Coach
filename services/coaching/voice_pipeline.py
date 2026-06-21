@@ -1,7 +1,9 @@
-# This file is the main voice feedback controller of your gym AI project. It decides
+# This file is the main voice feedback controller of your gym AI project. It decides:
 # Should feedback be spoken now? What issue should be told? Generate voice and return it.
 
 import time
+
+MAX_VOICE_CHARS = 200  # Orpheus TTS hard limit — truncate once here so caption == audio always
 
 class VoicePipeline:
     def __init__(self, llm, tts):
@@ -82,6 +84,7 @@ class VoicePipeline:
 
         if is_instant_event:
             text = self.llm.give_feedback(event, issue)
+            text = text[:MAX_VOICE_CHARS]
             voice = self.tts.speak(text)
             self.last_spoken_at = now
             return voice, text
@@ -115,6 +118,7 @@ class VoicePipeline:
         else:
             text = self.llm.give_feedback(event, issue)
 
+        text = text[:MAX_VOICE_CHARS]
         voice = self.tts.speak(text)
         self.last_spoken_at = now
         return voice, text
