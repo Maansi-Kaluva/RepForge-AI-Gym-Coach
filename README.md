@@ -122,7 +122,6 @@ Each detector returns a metrics dictionary (reps, joint angles, status labels, `
                          ┌───────────────────┐
                          │ Plank Detector    │
                          └───────────────────┘
-
                                   │
                                   ▼
 
